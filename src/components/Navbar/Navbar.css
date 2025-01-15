@@ -1,149 +1,163 @@
-/* Global styles */
-.NavigationBar {
+/* Global Variables */
+:root {
+    --primary-color: #124458;
+    --secondary-color: #0056b3;
+    --background-color: #f5f5f5;
+    --text-color: #124;
+    --white: #fff;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+  }
+  
+  /* Navigation Bar */
+  .NavigationBar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px 5%;
-    background-color: #f5f5f5;
+    background-color: var(--background-color);
     backdrop-filter: blur(10px);
     border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow);
     position: sticky;
     top: 0;
     z-index: 10;
-}
-
-.NavigationBar .logo h1 {
-    color: #124;
+  }
+  
+  .NavigationBar .logo h1 {
+    color: var(--text-color);
     font-size: 24px;
     font-weight: 700;
     margin: 0;
-}
-
-/* Search bar and button styles */
-.NavigationBar .searchBar {
+  }
+  
+  /* Search Bar */
+  .NavigationBar .searchBar {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     flex-grow: 1;
-}
-
-.NavigationBar .searchBar input {
+  }
+  
+  .NavigationBar .searchBar input {
     padding: 12px 15px;
     border-radius: 25px;
     border: 1px solid #ccc;
     width: 400px;
     font-size: 16px;
     outline: none;
-    background: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s;
-}
-
-.NavigationBar .searchBar input:focus {
-    border-color: #124;
-}
-
-.NavigationBar .searchBar button {
+    background: var(--white);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+  }
+  
+  .NavigationBar .searchBar input:focus {
+    border-color: var(--primary-color);
+  }
+  
+  .NavigationBar .searchBar button {
     padding: 12px 20px;
-    background-color: #124;
-    color: #fff;
+    background-color: var(--primary-color);
+    color: var(--white);
     border: none;
     border-radius: 25px;
     cursor: pointer;
     font-size: 16px;
-    transition: all 0.3s;
-}
-
-.NavigationBar .searchBar button:hover {
-    background-color: #0056b3;
-}
-
-.NavigationBar .searchBar button:active {
+    transition: var(--transition);
+  }
+  
+  .NavigationBar .searchBar button:hover {
+    background-color: var(--secondary-color);
+  }
+  
+  .NavigationBar .searchBar button:active {
     background-color: #004085;
-}
-
-.NavigationBar .searchBar button:focus {
+  }
+  
+  .NavigationBar .searchBar button:focus {
     outline: none;
-}
-
-/* Nav controls (buttons) styles */
-.navControls {
+  }
+  
+  /* Navigation Controls */
+  .navControls {
     display: flex;
     gap: 15px;
-}
-
-.navControls button {
+  }
+  
+  .navControls button {
     padding: 10px 15px;
     text-align: center;
     font-size: 14px;
     font-weight: bold;
-    color: #fff;
-    background-color: #124;
+    color: var(--white);
+    background-color: var(--primary-color);
     border: none;
     border-radius: 25px;
     cursor: pointer;
-    transition: all 0.3s;
-}
-
-.navControls button:hover {
+    transition: var(--transition);
+  }
+  
+  .navControls button:hover {
     background-color: #112244aa;
-}
-
-.navControls button:active {
-    background-color: #124;
-}
-
-.navControls button:focus {
+  }
+  
+  .navControls button:active {
+    background-color: var(--primary-color);
+  }
+  
+  .navControls button:focus {
     outline: none;
-}
-
-/* Responsive Styles */
-@media (max-width: 768px) {
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 768px) {
     .NavigationBar {
-        /* flex-direction: column; */
-        align-items: center;
-        justify-content: space-between;
-        padding: 15px 5%;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 5%;
     }
-
+  
     .NavigationBar .searchBar {
-        width: auto;
-        gap: 8px;
+      width: 100%;
+      gap: 8px;
+      margin-top: 10px;
     }
-
+  
     .NavigationBar .searchBar input {
-        width: 100%;
+      width: 100%;
     }
-
+  
     .NavigationBar .searchBar button {
-        width: auto;
-        padding: 12px 15px;
+      width: auto;
+      padding: 12px 15px;
     }
-
+  
     .navControls {
-        width: 100%;
-        justify-content: space-between;
+      width: 100%;
+      justify-content: space-between;
+      margin-top: 10px;
     }
-}
-
-@media (max-width: 480px) {
+  }
+  
+  @media (max-width: 480px) {
     .NavigationBar .logo h1 {
-        font-size: 20px;
+      font-size: 20px;
     }
-
+  
     .NavigationBar .searchBar input {
-        font-size: 14px;
+      font-size: 14px;
+      padding: 10px 12px;
     }
-
+  
     .NavigationBar .searchBar button {
-        font-size: 14px;
-        padding: 10px 15px;
+      font-size: 14px;
+      padding: 10px 15px;
     }
-
+  
     .navControls button {
-        font-size: 12px;
-        padding: 8px 12px;
+      font-size: 12px;
+      padding: 8px 12px;
     }
-}
+  }
