@@ -17,10 +17,13 @@ const Dashboard = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [viewState, setViewState] = useState({
-        latitude: 48.883955, // Default coordinates (Paris)
-        longitude: 2.349715, // Default coordinates (Paris)
+        latitude: -26.2041,
+        longitude: 28.0473,
         zoom: 10,
     });
+
+    const mapboxAccessToken = "pk.eyJ1IjoiZWtzbnhpd2VuaSIsImEiOiJjbTV4bGs5eW8wY2Y5MnFzOXlvYjM0ZHE1In0.WrWrQXtJWZJx7frBMS16-g";
+    const backendApiUrl = "https://backend-node-thw6.onrender.com";
 
     // Generate the next 7 days starting from today
     useEffect(() => {
@@ -39,7 +42,6 @@ const Dashboard = () => {
         return {
             temperature: Math.round((forecast.temp_min + forecast.temp_max) / 2),
             description: forecast.description,
-            // Use optional chaining and provide default values
             humidity: data.forecast[0]?.humidity || 'N/A',
             windSpeed: data.forecast[0]?.wind_speed || 'N/A'
         };
@@ -51,7 +53,7 @@ const Dashboard = () => {
         setIsLoading(true);
         setError(null);
         try {
-            const { data } = await axios.get(`/api/location?city=${encodeURIComponent(city)}`);
+            const { data } = await axios.get(`${backendApiUrl}/api/location?city=${encodeURIComponent(city)}`);
             if (data) {
                 const weatherData = processWeatherData(data, selectedDayIndex);
                 setWeatherDetails(weatherData);
@@ -62,7 +64,7 @@ const Dashboard = () => {
                     longitude: data.location.coordinates.longitude,
                     zoom: 12,
                 }));
-                setRecommendedPlaces(data.recommendedPlaces || []);
+                setRecommendations(data.recommendedPlaces || []);
             }
         } catch (error) {
             console.error('Error fetching weather:', error);
@@ -76,9 +78,9 @@ const Dashboard = () => {
     const fetchWeatherByCoords = async (lat, lon, dayIndex) => {
         if (!lat || !lon) return;
         setIsLoading(true);
-        setError(null);  // Clear previous error
+        setError(null);
         try {
-            const { data } = await axios.get(`/api/current-location?latitude=${lat}&longitude=${lon}`);
+            const { data } = await axios.get(`${backendApiUrl}/api/current-location?latitude=${lat}&longitude=${lon}`);
             if (data) {
                 setWeatherDetails(data);
                 setLocation(data.location);
@@ -114,13 +116,11 @@ const Dashboard = () => {
                     fetchWeatherByCoords(coords.latitude, coords.longitude, currentDayIndex);
                 },
                 () => {
-                    // If geolocation fails or is denied, use default location (Johannesburg)
                     setError('Unable to retrieve your location. Defaulting to Johannesburg.');
                     fetchWeather('Johannesburg', currentDayIndex);
                 }
             );
         } else {
-            // If geolocation is not supported, use default location (Johannesburg)
             setError('Geolocation is not supported by your browser. Defaulting to Johannesburg.');
             fetchWeather('Johannesburg', currentDayIndex);
         }
@@ -134,13 +134,11 @@ const Dashboard = () => {
                     fetchWeatherByCoords(coords.latitude, coords.longitude, currentDayIndex);
                 },
                 () => {
-                    // If geolocation fails or is denied, use default location (Johannesburg)
                     setError('Unable to retrieve your location. Defaulting to Johannesburg.');
                     fetchWeather('Johannesburg', currentDayIndex);
                 }
             );
         } else {
-            // If geolocation is not supported, use default location (Johannesburg)
             setError('Geolocation is not supported by your browser. Defaulting to Johannesburg.');
             fetchWeather('Johannesburg', currentDayIndex);
         }
@@ -186,14 +184,13 @@ const Dashboard = () => {
                     <Map
                         {...viewState}
                         onMove={(evt) => setViewState(evt.viewState)}
-                        mapboxAccessToken="pk.eyJ1IjoiZWtzbnhpd2VuaSIsImEiOiJjbTV4bGs5eW8wY2Y5MnFzOXlvYjM0ZHE1In0.WrWrQXtJWZJx7frBMS16-g"
+                        mapboxAccessToken={mapboxAccessToken}
                         style={{ width: '100%', height: '300px' }}
-                        mapStyle="mapbox://styles/mapbox/streets-v12"
+                        mapStyle="mapbox://styles/mapbox/outdoors-v12"
                     >
                         {location && (
                             <Marker latitude={viewState.latitude} longitude={viewState.longitude} anchor="bottom">
                                 <button onClick={handleCurrentLocation}>Use Current Location</button>
-                                
                             </Marker>
                         )}
                     </Map>

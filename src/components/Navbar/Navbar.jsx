@@ -17,7 +17,7 @@ const Navbar = ({ onSearch }) => {
     return (
         <div className="NavigationBar">
             <div className="logo">
-                <h1>CrocAxe</h1>
+                <h1>FinderFindr.</h1>
             </div>
             <div className="searchBar">
                 <input
