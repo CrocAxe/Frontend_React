@@ -9,21 +9,21 @@ const daysOfTheWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', '
 
 const Dashboard = () => {
     const [location, setLocation] = useState('');
-    const [currentDayIndex, setCurrentDayIndex] = useState(new Date().getDay());  // Current day (0-6)
+    const [currentDayIndex, setCurrentDayIndex] = useState(new Date().getDay()); // Current day (0-6)
     const [selectedDayIndex, setSelectedDayIndex] = useState(currentDayIndex);
     const [nextSevenDays, setNextSevenDays] = useState([]);
-    const [recommendation, setRecommendations] = useState([])
+    const [recommendation, setRecommendations] = useState([]);
     const [weatherDetails, setWeatherDetails] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [viewState, setViewState] = useState({
-        latitude: -26.2041,
+        latitude: -26.2041, // Default to Johannesburg
         longitude: 28.0473,
         zoom: 10,
     });
 
     const mapboxAccessToken = "pk.eyJ1IjoiZWtzbnhpd2VuaSIsImEiOiJjbTV4bGs5eW8wY2Y5MnFzOXlvYjM0ZHE1In0.WrWrQXtJWZJx7frBMS16-g";
-    const backendApiUrl = "https://backend-node-thw6.onrender.com";
+    const backendApiUrl = "http://localhost:5000/api"; // Update with your backend URL
 
     // Generate the next 7 days starting from today
     useEffect(() => {
@@ -34,31 +34,20 @@ const Dashboard = () => {
         setNextSevenDays(days);
     }, [currentDayIndex]);
 
-    const processWeatherData = (data, selectedIndex) => {
-        if (!data || !data.forecast || !data.forecast[selectedIndex]) {
-            throw new Error('Invalid weather data format');
-        }
-        const forecast = data.forecast[selectedIndex];
-        return {
-            temperature: Math.round((forecast.temp_min + forecast.temp_max) / 2),
-            description: forecast.description,
-            humidity: data.forecast[0]?.humidity || 'N/A',
-            windSpeed: data.forecast[0]?.wind_speed || 'N/A'
-        };
-    };
-
     // Fetch weather details by city name
     const fetchWeather = async (city) => {
         if (!city) return;
         setIsLoading(true);
         setError(null);
         try {
-            const { data } = await axios.get(`${backendApiUrl}/api/location?city=${encodeURIComponent(city)}`);
+            const url = `${backendApiUrl}/location?city=${encodeURIComponent(city)}`;
+            console.log('Fetching weather for city:', city, 'URL:', url); // Debugging
+            const { data } = await axios.get(url);
+            console.log('Weather API Response:', data); // Debugging
             if (data) {
-                const weatherData = processWeatherData(data, selectedDayIndex);
-                setWeatherDetails(weatherData);
+                setWeatherDetails(data.forecast[selectedDayIndex]);
                 setLocation(data.location.city);
-                setViewState(prev => ({
+                setViewState((prev) => ({
                     ...prev,
                     latitude: data.location.coordinates.latitude,
                     longitude: data.location.coordinates.longitude,
@@ -75,16 +64,19 @@ const Dashboard = () => {
     };
 
     // Fetch weather details by coordinates
-    const fetchWeatherByCoords = async (lat, lon, dayIndex) => {
+    const fetchWeatherByCoords = async (lat, lon) => {
         if (!lat || !lon) return;
         setIsLoading(true);
         setError(null);
         try {
-            const { data } = await axios.get(`${backendApiUrl}/api/current-location?latitude=${lat}&longitude=${lon}`);
+            const url = `${backendApiUrl}/current-location?latitude=${lat}&longitude=${lon}`;
+            console.log('Fetching weather by coordinates:', url); // Debugging
+            const { data } = await axios.get(url);
+            console.log('Weather by Coords API Response:', data); // Debugging
             if (data) {
-                setWeatherDetails(data);
-                setLocation(data.location);
-                setViewState(prev => ({
+                setWeatherDetails(data.forecast[selectedDayIndex]);
+                setLocation(data.location.city || 'Current Location');
+                setViewState((prev) => ({
                     ...prev,
                     latitude: lat,
                     longitude: lon,
@@ -92,20 +84,25 @@ const Dashboard = () => {
                 }));
             }
         } catch (error) {
-            setError('Error fetching weather data. Please try again later.');
             console.error('Error fetching weather by coordinates:', error);
+            setError('Error fetching weather data. Please try again later.');
         } finally {
             setIsLoading(false);
         }
     };
 
+    // Handle day selection
     const handleDayClick = (index) => {
         setSelectedDayIndex(index);
-        fetchWeather(location, index);
+        if (location) {
+            fetchWeather(location);
+        }
     };
 
+    // Handle search query
     const handleSearch = (query) => {
-        fetchWeather(query, selectedDayIndex);
+        console.log('Handling search for:', query); // Debugging
+        fetchWeather(query);
     };
 
     // Fetch weather based on the current location
@@ -113,36 +110,23 @@ const Dashboard = () => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 ({ coords }) => {
-                    fetchWeatherByCoords(coords.latitude, coords.longitude, currentDayIndex);
+                    fetchWeatherByCoords(coords.latitude, coords.longitude);
                 },
                 () => {
                     setError('Unable to retrieve your location. Defaulting to Johannesburg.');
-                    fetchWeather('Johannesburg', currentDayIndex);
+                    fetchWeather('Johannesburg');
                 }
             );
         } else {
             setError('Geolocation is not supported by your browser. Defaulting to Johannesburg.');
-            fetchWeather('Johannesburg', currentDayIndex);
+            fetchWeather('Johannesburg');
         }
     };
 
-    // Check user's geolocation on initial load
+    // Fetch weather on initial load
     useEffect(() => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                ({ coords }) => {
-                    fetchWeatherByCoords(coords.latitude, coords.longitude, currentDayIndex);
-                },
-                () => {
-                    setError('Unable to retrieve your location. Defaulting to Johannesburg.');
-                    fetchWeather('Johannesburg', currentDayIndex);
-                }
-            );
-        } else {
-            setError('Geolocation is not supported by your browser. Defaulting to Johannesburg.');
-            fetchWeather('Johannesburg', currentDayIndex);
-        }
-    }, [currentDayIndex]);
+        handleCurrentLocation();
+    }, []);
 
     return (
         <div className="dashboardContainer">
@@ -170,10 +154,10 @@ const Dashboard = () => {
                                 <p>Weather details for {daysOfTheWeek[selectedDayIndex]} at {location}</p>
                                 {weatherDetails && (
                                     <div>
-                                        <p>Temperature: {weatherDetails.temperature}°C</p>
+                                        <p>Temperature: {weatherDetails.temp_min}°C - {weatherDetails.temp_max}°C</p>
                                         <p>Condition: {weatherDetails.description}</p>
                                         <p>Humidity: {weatherDetails.humidity}%</p>
-                                        <p>Wind Speed: {weatherDetails.windSpeed} m/s</p>
+                                        <p>Wind Speed: {weatherDetails.wind_speed} m/s</p>
                                     </div>
                                 )}
                             </>
