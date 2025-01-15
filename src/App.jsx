@@ -1,17 +1,22 @@
+import { useState, useEffect } from "react";
+import Authentication from "./components/authentication/Authentication";
+import Dashboard from "./components/Dashboard/Dashboard";
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      // You can check if the user is authenticated here via Redux or by checking `localStorage` or cookies
+    }
+  }, [isAuthenticated]);
 
   return (
     <>
-     
+      {/* {isAuthenticated ? <Dashboard /> : <Authentication isAuthenticated={setIsAuthenticated} />} */}
+      <Dashboard/>
     </>
-  )
+  );
 }
 
-export default App
-git init
-git add .
-git commit -m "project setup using react and vite"
-git branch -M main
-git remote add origin https://github.com/CrocAxe/Frontend_React.git
-git push -u origin main
+export default App;
