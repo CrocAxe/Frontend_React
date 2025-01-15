@@ -1,22 +1,21 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore"; // Corrected import
+import { getFirestore } from "firebase/firestore";
 
-// Your web app's Firebase configuration
+// Your web app's Firebase configuration from environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyDLYJNiVidcG578XXlDUfK4Z5vabLIK55U",
-  authDomain: "weather-based-travel-planner.firebaseapp.com",
-  projectId: "weather-based-travel-planner",
-  storageBucket: "weather-based-travel-planner.firebasestorage.app",
-  messagingSenderId: "855438488237",
-  appId: "1:855438488237:web:2037b41397e01693834c24",
-  measurementId: "G-9Y8SM2ZKKJ"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 export const auth = getAuth(app);
-export const firestore = getFirestore(app); // Corrected initialization
+export const firestore = getFirestore(app);
