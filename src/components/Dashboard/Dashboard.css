@@ -2,12 +2,23 @@
     display: flex;
     flex-direction: column;
     background-color: #f0f0f0;
+    min-height: 100vh;
+    width: 100%;
 }
 
+.dashboardContainers {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
 
 .topContainer {
     background-image: url('https://img.hoodline.com/uploads/story/image/946708/unsplash__..featured_image_1..cloudy_5.jpg.jpg?max-h=442&w=760&fit=crop&crop=faces,center');
-    height: 300px;
+    min-height: 300px;
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
@@ -16,23 +27,30 @@
     justify-content: center;
     align-items: center;
     padding: 20px;
+    width: 100%;
+    border-radius: 8px;
 }
 
 .daysContainer {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
-    align-items: center;
-    margin-bottom: 10px;
+    width: 100%;
+    padding: 10px;
 }
 
-.daysContainer button {
-    padding: 40px;
+.dayButton {
+    padding: 20px;
     cursor: pointer;
     border: none;
     border-radius: 5px;
-    font-size: 16px;
+    font-size: clamp(14px, 2vw, 16px);
     font-weight: bold;
+    flex: 1;
+    min-width: 100px;
+    max-width: 150px;
+    transition: all 0.3s ease;
 }
 
 .dayButton.active {
@@ -41,14 +59,70 @@
 }
 
 .weatherDetails {
-    background: white;
-    padding: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-   
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
 }
 
 .bottomContainer {
     background: rgb(100, 100, 110);
-    /* padding: 20px; */
+    width: 100%;
+    height: clamp(250px, 50vh, 400px);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .dashboardContainers {
+        padding: 10px;
+    }
+
+    .dayButton {
+        padding: 15px;
+        min-width: 80px;
+    }
+
+    .weatherDetails {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .topContainer {
+        min-height: 250px;
+    }
+
+    .dayButton {
+        padding: 10px;
+        font-size: 14px;
+        min-width: 60px;
+    }
+}
+
+/* Weather Info Styles */
+.weatherInfo {
+    text-align: center;
+}
+
+.temperature {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.condition {
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    margin-bottom: 15px;
+}
+
+.weatherStats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
 }

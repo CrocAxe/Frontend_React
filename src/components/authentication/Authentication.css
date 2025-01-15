@@ -2,14 +2,18 @@
 * {
     padding: 0;
     margin: 0;
+    box-sizing: border-box;
   }
   
   ::placeholder {
     color: #b6b6b6;
+    opacity: 1; /* Ensure placeholder color is consistent across browsers */
   }
   
   body {
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    background-color: #f0f0f0; /* Fallback background */
   }
   
   /* Auth Container */
@@ -22,21 +26,38 @@
     height: 100vh;
     align-items: center;
     justify-content: center;
+    animation: fadeIn 1s ease-in-out; /* Smooth fade-in animation */
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
   
   /* Auth Card */
   .auth-card {
     display: flex;
     backdrop-filter: blur(10px);
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 30px;
+    /* background-color: rgba(0, 0, 0, 0.6); */
+    background: #000;
+    padding: 40px;
     border-radius: 15px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     max-width: 800px;
-    width: 100%;
+    width: 90%;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .auth-card:hover {
+    transform: translateY(-5px); /* Slight lift on hover */
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
   }
   
   /* Form Styles */
@@ -44,50 +65,34 @@
     width: 100%;
     color: #fff;
     text-align: center;
+    background-color: rgba(0, 0, 0, 0.572);
+    padding: 20px;
+    border-radius: 15px;
   }
   
   .auth-form h1 {
-    font-size: 24px;
-    margin-bottom: 20px;
+    font-size: 28px;
+    margin-bottom: 25px;
+    font-weight: bold;
+    letter-spacing: 1px;
   }
   
   .auth-form input {
     background: transparent;
-    border: 1px solid #b6b6b6;
-    width: 95%;
-    padding: 12px;
-    margin-bottom: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 20px;
     color: #fff;
     font-size: 16px;
-    border-radius: 5px;
+    border-radius: 8px;
     outline: none;
-    transition: all 0.3s ease;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
   }
   
   .auth-form input:focus {
     border-color: #fff;
-  }
-  
-  /* Google Button */
-  .google-btn {
-    background-color: #0d63e2;
-    color: white;
-    border-radius: 5px;
-    padding: 12px;
-    font-size: 16px;
-    width: 100%;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-  
-  .google-btn:hover {
-    background-color: #0059b3;
-  }
-  
-  /* Divider */
-  .divider {
-    color: #b6b6b6;
-    margin: 10px 0;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
   }
   
   /* Error Message */
@@ -95,6 +100,22 @@
     color: #ff4444;
     font-size: 14px;
     margin-bottom: 15px;
+    animation: shake 0.5s ease-in-out; /* Shake animation for errors */
+  }
+  
+  @keyframes shake {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-10px);
+    }
+    50% {
+      transform: translateX(10px);
+    }
+    75% {
+      transform: translateX(-5px);
+    }
   }
   
   /* Submit Button */
@@ -105,13 +126,15 @@
     padding: 12px;
     font-size: 16px;
     cursor: pointer;
-    border-radius: 5px;
-    transition: 0.3s;
+    margin: 0 0 10px 0;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
     width: 100%;
   }
   
   .submit-btn:hover {
     background-color: #0d3e51;
+    transform: scale(1.02); /* Slight scale effect on hover */
   }
   
   /* Toggle Link */
@@ -119,14 +142,22 @@
     color: #b6b6b6;
     cursor: pointer;
     text-decoration: underline;
+    transition: color 0.3s ease;
+  }
+  
+  .toggle-link:hover {
+    color: #fff;
   }
   
   /* Mobile Responsiveness */
   @media (max-width: 1024px) {
     .auth-card {
-      flex-direction: column;
-      padding: 20px;
+      padding: 30px;
       max-width: 90%;
+    }
+  
+    .auth-form h1 {
+      font-size: 24px;
     }
   
     .auth-form input {
@@ -135,19 +166,22 @@
   }
   
   @media (max-width: 480px) {
+    .auth-card {
+      padding: 20px;
+    }
+  
+    .auth-form h1 {
+      font-size: 22px;
+    }
+  
     .auth-form input {
       font-size: 12px;
       padding: 10px;
     }
   
-    .submit-btn {
-      font-size: 14px;
-      padding: 10px;
-    }
-  
+    .submit-btn,
     .google-btn {
       font-size: 14px;
       padding: 10px;
     }
   }
-  
