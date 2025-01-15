@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { signInWithGoogle } from "../../redux/AuthActions";
-import { login, register, setIsRegistered } from "../../redux/AuthSlice"
+import { login, register, setIsRegistered } from "../../redux/AuthSlice";
 import './Authentication.css';
 import image from '../../assets/25_website_featured__0BsXQ.jpg';
 

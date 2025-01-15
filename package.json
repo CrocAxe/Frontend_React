@@ -13,8 +13,11 @@
     "@reduxjs/toolkit": "^2.5.0",
     "axios": "^1.7.9",
     "firebase": "^11.1.0",
+    "lucide-react": "^0.471.1",
+    "mapbox-gl": "^3.9.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-map-gl": "^7.1.8",
     "react-redux": "^9.2.0",
     "redux": "^5.0.1"
   },
