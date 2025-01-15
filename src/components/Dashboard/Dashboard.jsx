@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Map, { Marker } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import Navbar from '../navbar/Navbar';
+import Navbar from '../Navbar/Navbar';
 import axios from 'axios';
 import './Dashboard.css';
 
@@ -12,6 +12,7 @@ const Dashboard = () => {
     const [currentDayIndex, setCurrentDayIndex] = useState(new Date().getDay());  // Current day (0-6)
     const [selectedDayIndex, setSelectedDayIndex] = useState(currentDayIndex);
     const [nextSevenDays, setNextSevenDays] = useState([]);
+    const [recommendation, setRecommendations] = useState([])
     const [weatherDetails, setWeatherDetails] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -30,26 +31,42 @@ const Dashboard = () => {
         setNextSevenDays(days);
     }, [currentDayIndex]);
 
+    const processWeatherData = (data, selectedIndex) => {
+        if (!data || !data.forecast || !data.forecast[selectedIndex]) {
+            throw new Error('Invalid weather data format');
+        }
+        const forecast = data.forecast[selectedIndex];
+        return {
+            temperature: Math.round((forecast.temp_min + forecast.temp_max) / 2),
+            description: forecast.description,
+            // Use optional chaining and provide default values
+            humidity: data.forecast[0]?.humidity || 'N/A',
+            windSpeed: data.forecast[0]?.wind_speed || 'N/A'
+        };
+    };
+
     // Fetch weather details by city name
-    const fetchWeather = async (city, dayIndex) => {
+    const fetchWeather = async (city) => {
         if (!city) return;
         setIsLoading(true);
-        setError(null);  // Clear previous error
+        setError(null);
         try {
-            const { data } = await axios.get(`http://localhost:5000/api/weather?city=${city}&day=${dayIndex}`);
+            const { data } = await axios.get(`/api/location?city=${encodeURIComponent(city)}`);
             if (data) {
-                setWeatherDetails(data);
-                setLocation(data.location);
+                const weatherData = processWeatherData(data, selectedDayIndex);
+                setWeatherDetails(weatherData);
+                setLocation(data.location.city);
                 setViewState(prev => ({
                     ...prev,
-                    latitude: data.coordinates?.lat || prev.latitude,
-                    longitude: data.coordinates?.lng || prev.longitude,
+                    latitude: data.location.coordinates.latitude,
+                    longitude: data.location.coordinates.longitude,
                     zoom: 12,
                 }));
+                setRecommendedPlaces(data.recommendedPlaces || []);
             }
         } catch (error) {
-            setError('Error fetching weather data. Please try again later.');
             console.error('Error fetching weather:', error);
+            setError(error.response?.data?.error || 'Error fetching weather data. Please try again later.');
         } finally {
             setIsLoading(false);
         }
@@ -61,7 +78,7 @@ const Dashboard = () => {
         setIsLoading(true);
         setError(null);  // Clear previous error
         try {
-            const { data } = await axios.get(`http://localhost:5000/api/weather?lat=${lat}&lon=${lon}&day=${dayIndex}`);
+            const { data } = await axios.get(`/api/current-location?latitude=${lat}&longitude=${lon}`);
             if (data) {
                 setWeatherDetails(data);
                 setLocation(data.location);
