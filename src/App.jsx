@@ -13,7 +13,11 @@ function App() {
 
   return (
     <>
-      {isAuthenticated ? <Dashboard /> : <Authentication isAuthenticated={setIsAuthenticated} />}
+      {isAuthenticated ? (
+        <Dashboard setIsAuthenticated={setIsAuthenticated} />
+      ) : (
+        <Authentication setIsAuthenticated={setIsAuthenticated} />
+      )}
     </>
   );
 }
