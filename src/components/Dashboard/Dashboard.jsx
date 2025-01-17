@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Map, { Marker } from 'react-map-gl';
 import { MapPin } from 'lucide-react';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import Navbar from '../navbar/Navbar';
+import Navbar from '../Navbar/Navbar';
 import axios from 'axios';
 import './Dashboard.css';
 
