@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import './Navbar.css';
 import { LogOut } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { logout } from '../../redux/AuthActions';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
 
 // eslint-disable-next-line react/prop-types
-const Navbar = ({ onSearch, onLogout }) => {
+const Navbar = ({ onSearch, onLogout, onShowProfile }) => {
+    const dispatch = useDispatch();
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredCities, setFilteredCities] = useState([]);
     const [isSearching, setIsSearching] = useState(false); // Loading state for search
@@ -15,15 +18,14 @@ const Navbar = ({ onSearch, onLogout }) => {
         "Bloemfontein", "East London", "Pietermaritzburg", "Kimberley", "Polokwane"
     ];
 
-    const handleLogout = () => {
-        signOut(auth)
-            .then(() => {
-                console.log('User signed out successfully');
-                if (onLogout) onLogout();
-            })
-            .catch((error) => {
-                console.error('Error signing out:', error);
-            });
+    const handleLogout = async () => {
+        try {
+            await dispatch(logout()); // Dispatch the logout action
+            console.log('User logged out successfully');
+            if (onLogout) onLogout(); // Call the onLogout prop to update parent component
+        } catch (error) {
+            console.error('Error logging out:', error);
+        }
     };
 
     const handleInputChange = (e) => {
@@ -81,7 +83,7 @@ const Navbar = ({ onSearch, onLogout }) => {
                 <button onClick={handleLogout} title="Logout">
                     <LogOut />
                 </button>
-                <button title="Profile">Profile</button>
+                <button title="Profile" onClick={onShowProfile}>Profile</button>
             </div>
         </div>
     );

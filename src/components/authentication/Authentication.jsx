@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser, registerUser } from '../../redux/AuthActions';
+import { clearError } from '../../redux/AuthSlice';
 import Dashboard from '../Dashboard/Dashboard';
 import './Authentication.css';
 
@@ -8,65 +10,39 @@ const Authentication = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isRegistered, setIsRegistered] = useState(false);
-  const [error, setError] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // Loading state
-
-  const auth = getAuth();
+  
+  const dispatch = useDispatch();
+  const { loading, error, isAuthenticated } = useSelector(state => state.auth);
 
   const toggleForm = () => {
     setIsRegistered(!isRegistered);
-    setError(null); // Clear error when toggling forms
+    dispatch(clearError());
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    setIsLoading(true); // Set loading state
 
     if (isRegistered) {
       // Registration logic
       if (password !== confirmPassword) {
-        setError('Passwords do not match');
-        setIsLoading(false);
+        dispatch(setError('Passwords do not match'));
         return;
       }
 
       try {
-        await createUserWithEmailAndPassword(auth, email, password);
+        await dispatch(registerUser({ email, password }));
         alert('Registration successful! Please sign in.');
-        toggleForm(); // Switch to sign-in form
+        toggleForm();
       } catch (err) {
-        setError(getErrorMessage(err.code)); // Use a helper function for error messages
+        console.log('Registration error: ', err)
       }
     } else {
       // Sign-in logic
       try {
-        await signInWithEmailAndPassword(auth, email, password);
-        setIsAuthenticated(true); // Set authenticated state to true
+        await dispatch(loginUser({ email, password }));
       } catch (err) {
-        setError(getErrorMessage(err.code)); // Use a helper function for error messages
+        console.log('Registration error: ', err)
       }
-    }
-
-    setIsLoading(false); // Reset loading state
-  };
-
-  // Helper function to map Firebase error codes to user-friendly messages
-  const getErrorMessage = (code) => {
-    switch (code) {
-      case 'auth/email-already-in-use':
-        return 'This email is already registered. Please sign in.';
-      case 'auth/invalid-email':
-        return 'Please enter a valid email address.';
-      case 'auth/weak-password':
-        return 'Password should be at least 6 characters long.';
-      case 'auth/user-not-found':
-        return 'No account found with this email. Please sign up.';
-      case 'auth/wrong-password':
-        return 'Incorrect password. Please try again.';
-      default:
-        return 'An error occurred. Please try again.';
     }
   };
 
@@ -108,8 +84,8 @@ const Authentication = () => {
               />
             )}
             {error && <p className="error" aria-live="assertive">{error}</p>}
-            <button type="submit" className="submit-btn" disabled={isLoading}>
-              {isLoading ? 'Processing...' : isRegistered ? 'Sign Up' : 'Sign In'}
+            <button type="submit" className="submit-btn" disabled={loading}>
+              {loading ? 'Processing...' : isRegistered ? 'Sign Up' : 'Sign In'}
             </button>
             <p>
               {isRegistered ? 'Already have an account? ' : 'New User? '}
@@ -118,9 +94,6 @@ const Authentication = () => {
               </span>
             </p>
           </form>
-        </div>
-        <div className="auth-info">
-          {/* Additional content or imagery */}
         </div>
       </div>
     </div>

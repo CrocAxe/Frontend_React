@@ -1,12 +1,19 @@
 import { useState, useEffect } from 'react';
+
 import Map, { Marker } from 'react-map-gl';
-import { MapPin } from 'lucide-react';
+import { MapPin, Heart, X} from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../../redux/AuthActions';
+import { addFavoritePlace, removeFavoritePlace } from '../../redux/ProfileActions';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import Navbar from '../Navbar/Navbar';
+import Profile from '../Profile/Profile';
 import axios from 'axios';
 import './Dashboard.css';
 
 const Dashboard = ({ setIsAuthenticated }) => {
+    const dispatch = useDispatch();
+    const { favorites } = useSelector(state => state.profile);
     const [location, setLocation] = useState(null);
     const [selectedDayIndex, setSelectedDayIndex] = useState(0);
     const [weekDays, setWeekDays] = useState([]);
@@ -22,7 +29,23 @@ const Dashboard = ({ setIsAuthenticated }) => {
         longitude: 28.0473,
         zoom: 10,
     });
-    const [favorites, setFavorites] = useState([]); // New state to track favorites
+    // const [favorites, setFavorites] = useState([]); // New state to track favorites
+    const [showProfile, setShowProfile] = useState(false);
+
+    const handleShowProfile = () => {
+        setShowProfile(!showProfile);
+    };
+
+    const handleLogout = async () => {
+        try {
+            await dispatch(logout());
+            setIsAuthenticated(false);
+            
+            
+        } catch (error) {
+            console.error('Logout failed:', error);
+        }
+    };
 
     const MAPBOX_TOKEN = "pk.eyJ1IjoiZWtzbnhpd2VuaSIsImEiOiJjbTV4bGs5eW8wY2Y5MnFzOXlvYjM0ZHE1In0.WrWrQXtJWZJx7frBMS16-g";
     const API_URL = "https://backend-node-thw6.onrender.com";
@@ -64,6 +87,10 @@ const Dashboard = ({ setIsAuthenticated }) => {
             }
         }
     }, [selectedDayIndex, allWeatherData, recommendations]);
+
+    useEffect(() => {
+        console.log('Current favorites:', favorites);
+    }, [favorites]);
 
     const fetchWeatherData = async (url) => {
         setIsLoading(true);
@@ -117,19 +144,46 @@ const Dashboard = ({ setIsAuthenticated }) => {
         setSelectedDayIndex(index);
     };
 
-    // New function to handle adding a recommendation to favorites
-    const addToFavorites = (recommendation) => {
-        setFavorites((prevFavorites) => [...prevFavorites, recommendation]);
-    };
-
+    
     useEffect(() => {
         handleCurrentLocation();
     }, []);
 
+    const handleFavoriteToggle = async (place) => {
+        try {
+            // Create an ID in the same format as the server
+            const generateId = (name) => {
+                return name.toLowerCase().replace(/\s+/g, '-');
+            };
+            
+            const placeWithId = {
+                ...place,
+                id: place.id || generateId(place.name)
+            };
+            
+            const isFavorite = favorites.some(fav => fav.id === generateId(place.name));
+            
+            if (isFavorite) {
+                console.log('Removing favorite:', placeWithId.id);
+                await dispatch(removeFavoritePlace(placeWithId.id));
+            } else {
+                console.log('Adding favorite:', placeWithId);
+                await dispatch(addFavoritePlace(placeWithId));
+            }
+        } catch (error) {
+            console.error('Error toggling favorite:', error);
+        }
+    };
+
     return (
         <div className="dashboardContainer">
-            <Navbar onSearch={handleSearch} onLogout={() => setIsAuthenticated(false)} />
-
+            <Navbar onSearch={handleSearch} onLogout={handleLogout}  onShowProfile={handleShowProfile}/>
+            {showProfile ? (
+                <div className="profile-modal">
+                    <Profile />
+                    
+                </div>
+            ) : (
             <div className="dashboardContent">
                 <div className="daysContainer">
                     {weekDays.map((day, index) => (
@@ -193,26 +247,47 @@ const Dashboard = ({ setIsAuthenticated }) => {
                 </div>
 
                 {selectedRecommendation && (
-                    <div className="modal" onClick={() => setSelectedRecommendation(null)}>
-                        <div className="modalContent" onClick={(e) => e.stopPropagation()}>
-                            <h3>{selectedRecommendation.name}</h3>
-                            <p>Category: {selectedRecommendation.category}</p>
-                            <p>Address: {selectedRecommendation.address}</p>
-                            <button
-                                onClick={() => setSelectedRecommendation(null)}
-                                className="closeButton"
-                            >
-                                Close
-                            </button>
-                            <button
-                                onClick={() => addToFavorites(selectedRecommendation)}
-                                className="addFavorites"
-                            >
-                                Add to Favorites
-                            </button>
+                        <div className="modal" onClick={() => setSelectedRecommendation(null)}>
+                            <div className="modalContent" onClick={(e) => e.stopPropagation()}>
+                                <div className="modalHeader">
+                                    <h3>{selectedRecommendation.name}</h3>
+                                    <div className="modalActions">
+                                    <button
+                                        className="favoriteButton"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleFavoriteToggle(selectedRecommendation);
+                                        }}
+                                    >
+                                    <Heart
+                                        className={`heart-icon ${
+                                            favorites.some(fav => 
+                                                fav.id === (selectedRecommendation.id || 
+                                                `${selectedRecommendation.name}-${selectedRecommendation.coordinates.latitude}-${selectedRecommendation.coordinates.longitude}`)
+                                            )
+                                            ? 'heart-icon-favorited'
+                                            : 'heart-icon-unfavorited'
+                                        }`}
+                                    />
+                                    </button>
+                                        <button
+                                            className="closeButton"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedRecommendation(null);
+                                            }}
+                                        >
+                                            <X className="w-6 h-6" />
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="modalBody">
+                                    <p>Category: {selectedRecommendation.category}</p>
+                                    <p>Address: {selectedRecommendation.address}</p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
                 {/* <div className="favoritesList">
                     <h3>Your Favorites</h3>
@@ -226,6 +301,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
                     </ul>
                 </div> */}
             </div>
+            )}
         </div>
     );
 };
