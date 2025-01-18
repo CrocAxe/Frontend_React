@@ -1,205 +1,251 @@
-import { 
-    createUserWithEmailAndPassword, 
-    signInWithEmailAndPassword,
-    signInWithPopup,
-    GoogleAuthProvider,
-    signOut,
-    updateProfile
-} from "firebase/auth";
-import { 
-    getFirestore, 
-    setDoc, 
-    doc, 
-    getDoc, 
-    serverTimestamp 
-} from "firebase/firestore";
-import { auth, firestore } from "../firebase";
-// import { setLoading, setUser } from "./AuthSlice";
+// import { 
+//     createUserWithEmailAndPassword, 
+//     signInWithEmailAndPassword,
+//     signInWithPopup,
+//     GoogleAuthProvider,
+//     signOut,
+//     updateProfile
+// } from "firebase/auth";
+// import { 
+//     getFirestore, 
+//     setDoc, 
+//     doc, 
+//     getDoc, 
+//     serverTimestamp 
+// } from "firebase/firestore";
+// import { auth, firestore } from "../firebase";
+// // import { setLoading, setUser } from "./AuthSlice";
 
-// Enhanced email validation
-const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
-        return "Please enter a valid email address";
-    }
-    return null;
-};
+// // Enhanced email validation
+// const validateEmail = (email) => {
+//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     if (!email || !emailRegex.test(email)) {
+//         return "Please enter a valid email address";
+//     }
+//     return null;
+// };
 
-// Enhanced password validation
-const validatePassword = (password) => {
-    if (!password) {
-        return "Password is required";
-    }
-    if (password.length < 6) {
-        return "Password must be at least 6 characters long";
-    }
-    if (!/\d/.test(password)) {
-        return "Password must contain at least one number";
-    }
-    if (!/[a-zA-Z]/.test(password)) {
-        return "Password must contain at least one letter";
-    }
-    return null;
-};
+// // Enhanced password validation
+// const validatePassword = (password) => {
+//     if (!password) {
+//         return "Password is required";
+//     }
+//     if (password.length < 6) {
+//         return "Password must be at least 6 characters long";
+//     }
+//     if (!/\d/.test(password)) {
+//         return "Password must contain at least one number";
+//     }
+//     if (!/[a-zA-Z]/.test(password)) {
+//         return "Password must contain at least one letter";
+//     }
+//     return null;
+// };
 
-// Create or update user document in Firestore
-const updateUserData = async (user, additionalData = {}) => {
-    const userRef = doc(firestore, "users", user.uid);
-    const userData = {
-        uid: user.uid,
-        email: user.email,
-        emailVerified: user.emailVerified,
-        displayName: user.displayName || additionalData.displayName,
-        photoURL: user.photoURL,
-        lastLoginAt: serverTimestamp(),
-        ...additionalData
-    };
+// // Create or update user document in Firestore
+// const updateUserData = async (user, additionalData = {}) => {
+//     const userRef = doc(firestore, "users", user.uid);
+//     const userData = {
+//         uid: user.uid,
+//         email: user.email,
+//         emailVerified: user.emailVerified,
+//         displayName: user.displayName || additionalData.displayName,
+//         photoURL: user.photoURL,
+//         lastLoginAt: serverTimestamp(),
+//         ...additionalData
+//     };
 
-    try {
-        await setDoc(userRef, userData, { merge: true });
-        return userData;
-    } catch (error) {
-        console.error("Error updating user data:", error);
-        throw error;
-    }
-};
+//     try {
+//         await setDoc(userRef, userData, { merge: true });
+//         return userData;
+//     } catch (error) {
+//         console.error("Error updating user data:", error);
+//         throw error;
+//     }
+// };
 
-export const signUpUser = (email, password, additionalData = {}) => async (dispatch) => {
-    try {
-        dispatch(setLoading(true));
+// export const signUpUser = (email, password, additionalData = {}) => async (dispatch) => {
+//     try {
+//         dispatch(setLoading(true));
 
-        // Validate inputs
-        const emailError = validateEmail(email);
-        if (emailError) {
-            dispatch(setError(emailError));
-            return;
-        }
+//         // Validate inputs
+//         const emailError = validateEmail(email);
+//         if (emailError) {
+//             dispatch(setError(emailError));
+//             return;
+//         }
 
-        const passwordError = validatePassword(password);
-        if (passwordError) {
-            dispatch(setError(passwordError));
-            return;
-        }
+//         const passwordError = validatePassword(password);
+//         if (passwordError) {
+//             dispatch(setError(passwordError));
+//             return;
+//         }
 
-        // Create user in Firebase Auth
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+//         // Create user in Firebase Auth
+//         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         
-        // Update profile if name is provided
-        if (additionalData.displayName) {
-            await updateProfile(userCredential.user, {
-                displayName: additionalData.displayName
-            });
-        }
+//         // Update profile if name is provided
+//         if (additionalData.displayName) {
+//             await updateProfile(userCredential.user, {
+//                 displayName: additionalData.displayName
+//             });
+//         }
 
-        // Save user data to Firestore
-        const userData = await updateUserData(userCredential.user, {
-            ...additionalData,
-            createdAt: serverTimestamp(),
-        });
+//         // Save user data to Firestore
+//         const userData = await updateUserData(userCredential.user, {
+//             ...additionalData,
+//             createdAt: serverTimestamp(),
+//         });
 
-        dispatch(setUser(userData));
-        return userData;
+//         dispatch(setUser(userData));
+//         return userData;
 
-    } catch (error) {
-        console.error("Sign Up Error:", error);
-        const errorMessage = handleAuthError(error);
-        dispatch(setError(errorMessage));
-        throw error;
-    } finally {
-        dispatch(setLoading(false));
-    }
-};
+//     } catch (error) {
+//         console.error("Sign Up Error:", error);
+//         const errorMessage = handleAuthError(error);
+//         dispatch(setError(errorMessage));
+//         throw error;
+//     } finally {
+//         dispatch(setLoading(false));
+//     }
+// };
 
-export const signInUser = (email, password) => async (dispatch) => {
-    try {
-        dispatch(setLoading(true));
+// export const signInUser = (email, password) => async (dispatch) => {
+//     try {
+//         dispatch(setLoading(true));
 
-        // Validate email
-        const emailError = validateEmail(email);
-        if (emailError) {
-            dispatch(setError(emailError));
-            return;
-        }
+//         // Validate email
+//         const emailError = validateEmail(email);
+//         if (emailError) {
+//             dispatch(setError(emailError));
+//             return;
+//         }
 
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+//         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         
-        // Update user data in Firestore and get latest user data
-        const userData = await updateUserData(userCredential.user);
+//         // Update user data in Firestore and get latest user data
+//         const userData = await updateUserData(userCredential.user);
         
-        dispatch(setUser(userData));
-        return userData;
+//         dispatch(setUser(userData));
+//         return userData;
 
-    } catch (error) {
-        console.error("Sign In Error:", error);
-        const errorMessage = handleAuthError(error);
-        dispatch(setError(errorMessage));
-        throw error;
-    } finally {
-        dispatch(setLoading(false));
-    }
-};
+//     } catch (error) {
+//         console.error("Sign In Error:", error);
+//         const errorMessage = handleAuthError(error);
+//         dispatch(setError(errorMessage));
+//         throw error;
+//     } finally {
+//         dispatch(setLoading(false));
+//     }
+// };
 
-export const signInWithGoogle = () => async (dispatch) => {
-    try {
-        dispatch(setLoading(true));
-        const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({
-            prompt: 'select_account'
-        });
+// export const signInWithGoogle = () => async (dispatch) => {
+//     try {
+//         dispatch(setLoading(true));
+//         const provider = new GoogleAuthProvider();
+//         provider.setCustomParameters({
+//             prompt: 'select_account'
+//         });
 
-        const userCredential = await signInWithPopup(auth, provider);
+//         const userCredential = await signInWithPopup(auth, provider);
         
-        // Update user data in Firestore and get latest user data
-        const userData = await updateUserData(userCredential.user, {
-            signInMethod: 'google'
-        });
+//         // Update user data in Firestore and get latest user data
+//         const userData = await updateUserData(userCredential.user, {
+//             signInMethod: 'google'
+//         });
 
-        dispatch(setUser(userData));
-        return userData;
+//         dispatch(setUser(userData));
+//         return userData;
 
-    } catch (error) {
-        console.error("Google Sign In Error:", error);
-        dispatch(setError("Failed to sign in with Google. Please try again."));
-        throw error;
-    } finally {
-        dispatch(setLoading(false));
-    }
+//     } catch (error) {
+//         console.error("Google Sign In Error:", error);
+//         dispatch(setError("Failed to sign in with Google. Please try again."));
+//         throw error;
+//     } finally {
+//         dispatch(setLoading(false));
+//     }
+// };
+
+// export const signOutUser = () => async (dispatch) => {
+//     try {
+//         dispatch(setLoading(true));
+//         await signOut(auth);
+//         dispatch(setUser(null));
+//     } catch (error) {
+//         console.error("Sign Out Error:", error);
+//         dispatch(setError("Failed to sign out. Please try again."));
+//         throw error;
+//     } finally {
+//         dispatch(setLoading(false));
+//     }
+// };
+
+// // Centralized error handling
+// const handleAuthError = (error) => {
+//     switch (error.code) {
+//         case 'auth/email-already-in-use':
+//             return "This email is already registered. Please sign in instead.";
+//         case 'auth/wrong-password':
+//             return "Incorrect password. Please try again.";
+//         case 'auth/user-not-found':
+//             return "No account found with this email. Please register.";
+//         case 'auth/invalid-email':
+//             return "Please enter a valid email address.";
+//         case 'auth/weak-password':
+//             return "Password should be at least 6 characters long.";
+//         case 'auth/network-request-failed':
+//             return "Network error. Please check your connection.";
+//         case 'auth/too-many-requests':
+//             return "Too many failed attempts. Please try again later.";
+//         case 'auth/user-disabled':
+//             return "This account has been disabled. Please contact support.";
+//         default:
+//             return error.message || "An unexpected error occurred. Please try again.";
+//     }
+// };
+
+
+import { setLoading, setError, setUser, setToken, clearAuth } from './AuthSlice';
+import axios from 'axios';
+
+const API_URL = 'https://backend-node-thw6.onrender.com';
+
+export const registerUser = (userData) => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const response = await axios.post(`${API_URL}/users/register`, userData);
+    dispatch(setLoading(false));
+    return response.data;
+  } catch (error) {
+    dispatch(setError(error.response?.data?.error || 'Registration failed'));
+    throw error;
+  }
 };
 
-export const signOutUser = () => async (dispatch) => {
-    try {
-        dispatch(setLoading(true));
-        await signOut(auth);
-        dispatch(setUser(null));
-    } catch (error) {
-        console.error("Sign Out Error:", error);
-        dispatch(setError("Failed to sign out. Please try again."));
-        throw error;
-    } finally {
-        dispatch(setLoading(false));
-    }
+export const loginUser = (credentials) => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const response = await axios.post(`${API_URL}/users/login`, credentials);
+    const { userId, idToken } = response.data;
+    
+    // Store token in localStorage
+    localStorage.setItem('token', idToken);
+    
+    // Set auth header for future requests
+    axios.defaults.headers.common['Authorization'] = `Bearer ${idToken}`;
+    
+    // Update Redux state
+    dispatch(setToken(idToken));
+    dispatch(setUser({ uid: userId }));
+    return response.data;
+  } catch (error) {
+    dispatch(setError(error.response?.data?.error || 'Login failed'));
+    throw error;
+  }
 };
 
-// Centralized error handling
-const handleAuthError = (error) => {
-    switch (error.code) {
-        case 'auth/email-already-in-use':
-            return "This email is already registered. Please sign in instead.";
-        case 'auth/wrong-password':
-            return "Incorrect password. Please try again.";
-        case 'auth/user-not-found':
-            return "No account found with this email. Please register.";
-        case 'auth/invalid-email':
-            return "Please enter a valid email address.";
-        case 'auth/weak-password':
-            return "Password should be at least 6 characters long.";
-        case 'auth/network-request-failed':
-            return "Network error. Please check your connection.";
-        case 'auth/too-many-requests':
-            return "Too many failed attempts. Please try again later.";
-        case 'auth/user-disabled':
-            return "This account has been disabled. Please contact support.";
-        default:
-            return error.message || "An unexpected error occurred. Please try again.";
-    }
+export const logout = () => (dispatch) => {
+  localStorage.removeItem('token');
+  delete axios.defaults.headers.common['Authorization'];
+  dispatch(clearAuth());
 };
